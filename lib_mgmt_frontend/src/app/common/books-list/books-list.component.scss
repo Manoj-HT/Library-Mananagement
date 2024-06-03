@@ -1,0 +1,26 @@
+.card{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    gap: 30px;
+}
+.button_group{
+    width: 100%;
+}
+button{
+    display: flex;
+    align-items: center;
+}
+.select_option{
+    cursor: pointer;
+    padding: 2px;
+    &:hover{
+        background-color: var(--theme_color-light);
+    }
+}
+.delete{
+    color: var(--danger);
+}

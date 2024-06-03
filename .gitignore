@@ -1,0 +1,9 @@
+/lib_mgmt_backend/node_modules
+/lib_mgmt_frontend/node_modules
+/lib_mgmt_frontend/npm-debug.log
+/lib_mgmt_frontend/yarn-error.log
+/lib_mgmt_frontend/yarn-error.log
+/lib_mgmt_frontend/dist
+/lib_mgmt_frontend/tmp
+/lib_mgmt_frontend/out-tsc
+/lib_mgmt_frontend/bazel-out

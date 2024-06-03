@@ -1,0 +1,97 @@
+<div class="component_container component_container-padding">
+  @for(collection of collectionList; track collection){
+  <div class="section">
+    <p class="sub_heading">{{ collection.name }}</p>
+    <div class="book-container">
+      @for(book of collection.books; track book){
+      <div class="book" (click)="role == 'reader' ? readBook(book.id) : null">
+        <div class="img_wrapper">
+          <img [src]="'book.jpg'" [alt]="'Book' + book.title" />
+        </div>
+        <p>{{ book.title }}</p>
+        <p>{{ book.author.name }}</p>
+      </div>
+      }
+    </div>
+    <div class="button_wrapper">
+      @if(role == 'admin'){
+        <button style="margin-right: 10px;" (click)="getCollectionForAdmin(collection.id)" >Edit</button>
+        <button class="button_danger" (click)="deleteCollection(collection.id)" >Delete</button>
+      }@else {
+        <button class="view_all" (click)="getCollection(collection.id)" >View All</button>
+      }
+    </div>
+  </div>
+  }
+  @if(role == 'admin'){
+    <div class="button_wrapper">
+      <button class="button_active" (click)="collectionDetails()">
+        Add Collection
+      </button>
+    </div>
+  }
+</div>
+@if(isCollectionEditCard()){
+<div class="view_collection card">
+  <form [formGroup]="headingForm">
+    <div class="row">
+      <text-input
+        label="Collection Name"
+        controlName="name"
+        [parentForm]="headingForm"
+      />
+      <text-input
+        label="Search"
+        controlName="search"
+        [parentForm]="headingForm"
+        (input)="getSearchValue($event)"
+      />
+    </div>
+    <div class="table_wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Sl No</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Last updated</th>
+            <th>Genre</th>
+            @if(role == 'admin'){
+              <th>@if(isSearch()){ Add }@else { Remove }</th>
+            }
+            @else {
+              <th>Read</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for(book of booksInCollection; track book){
+          <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author.name }}</td>
+            <td>{{ book.updatedDate | date : "MMM dd yyyy [hh:mm a]" }}</td>
+            <td>{{ book.genre }}</td>
+            @if(role == 'admin'){
+
+              <td>
+                @if(isSearch()){
+                <span class="material-symbols-rounded" (click)="addToBookCollection(book.id)" > add </span>
+                }@else {
+                <span class="material-symbols-rounded" (click)="removeBookInCollection(book.id)" > delete </span>
+                }
+              </td>
+            }@else {
+              <td><button (click)="readBook(book.id)" >Read</button></td>
+            }
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="button_wrapper">
+      <button class="button_active"  (click)="isEdit() ? editCollection() : addToCollection()" >{{isEdit()  ? 'Update Collection' : 'Create Collection'}}</button>
+    </div>
+  </form>
+</div>
+}

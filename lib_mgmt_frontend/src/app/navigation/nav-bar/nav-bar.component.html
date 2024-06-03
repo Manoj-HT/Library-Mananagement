@@ -1,0 +1,122 @@
+<div class="nav_container">
+  <div class="nav-element_container" (click)="openProfile()">
+    <div class="img_wrapper">
+      <img [src]="profileImage" alt="" />
+    </div>
+  </div>
+  <div class="nav-element_container" (click)="navigate('home')">
+    <span
+      (mouseenter)="showHideDescription('home', true)"
+      (mouseleave)="showHideDescription('home', false)"
+      [className]="
+        routeState().home
+          ? 'material-symbols-rounded active'
+          : 'material-symbols-rounded inactive'
+      "
+      title="home"
+    >
+      home
+    </span>
+    @if(nav_element.home){
+    <div class="nav_description card">Home</div>
+    }
+  </div>
+  @if(userRole().admin){
+  <div class="nav-element_container" (click)="navigate('users')">
+    <span
+      (mouseenter)="showHideDescription('users', true)"
+      (mouseleave)="showHideDescription('users', false)"
+      [className]="
+        routeState().users
+          ? 'material-symbols-rounded active'
+          : 'material-symbols-rounded inactive'
+      "
+      title="users"
+    >
+      group
+    </span>
+    @if(nav_element.users){
+    <div class="nav_description card">Users</div>
+    }
+  </div>
+  <div class="nav-element_container" (click)="navigate('books')">
+    <span
+      (mouseenter)="showHideDescription('books', true)"
+      (mouseleave)="showHideDescription('books', false)"
+      [className]="
+        routeState().books
+          ? 'material-symbols-rounded active'
+          : 'material-symbols-rounded inactive'
+      "
+      title="books"
+    >
+      menu_book
+    </span>
+    @if(nav_element.books){
+    <div class="nav_description card">Books</div>
+    }
+  </div>
+  <div class="nav-element_container" (click)="navigate('collection')">
+    <span
+      (mouseenter)="showHideDescription('collection', true)"
+      (mouseleave)="showHideDescription('collection', false)"
+      [className]="
+        routeState().collection
+          ? 'material-symbols-rounded active'
+          : 'material-symbols-rounded inactive'
+      "
+      title="collections"
+    >
+      library_books
+    </span>
+    @if(nav_element.collection){
+    <div class="nav_description card">Collection</div>
+    }
+  </div>
+  } @if(userRole().reader){
+  <div class="nav-element_container" (click)="navigate('last')">
+    <span
+      (mouseenter)="showHideDescription('last', true)"
+      (mouseleave)="showHideDescription('last', false)"
+      [className]="
+        routeState().books
+          ? 'material-symbols-rounded active'
+          : 'material-symbols-rounded inactive'
+      "
+      title="books"
+    >
+      import_contacts
+    </span>
+    @if(nav_element.books){
+    <div class="nav_description card">Read Last</div>
+    }
+  </div>
+  } @if(isToolBar()){
+  <div class="nav-element_container">
+    <span
+      class="material-symbols-rounded toolbar"
+      (mouseenter)="isHover = { next: true, prev: false }"
+      (mouseleave)="isHover = { next: false, prev: false }"
+      (click)="pageNavigation('next')"
+    >
+      chevron_right
+    </span>
+    @if(isHover.next){
+    <div class="nav_description card">Next</div>
+    }
+  </div>
+  <div class="nav-element_container">
+    <span
+      class="material-symbols-rounded toolbar"
+      (mouseenter)="isHover = { next: false, prev: true }"
+      (mouseleave)="isHover = { next: false, prev: false }"
+      (click)="pageNavigation('prev')"
+    >
+      chevron_left
+    </span>
+    @if(isHover.prev){
+    <div class="nav_description card">Previous</div>
+    }
+  </div>
+  }
+</div>

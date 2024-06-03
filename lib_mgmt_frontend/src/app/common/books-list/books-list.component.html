@@ -1,0 +1,74 @@
+<div class="component_container component_container-padding">
+  <p class="heading">List of all books</p>
+  <div class="card">
+    <div class="button_group">
+      <form action="" [formGroup]="form">
+        <text-input
+          label="Search book"
+          controlName="book"
+          [parentForm]="form"
+          (input)="search($event)"
+        />
+      </form>
+      <button [routerLink]="'/admin/create-book'">
+        <span class="material-symbols-rounded"> add </span>Create new book
+      </button>
+    </div>
+    <div class="table_wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Sl No</th>
+            <!-- <th>Cover Image</th> -->
+            <th>Title</th>
+            <th>Author</th>
+            <th>Last updated</th>
+            <th>Borrowed</th>
+            <th>Borrowed By</th>
+            <th>Borrowed On</th>
+            <th>Book size</th>
+            <th>Total views</th>
+            <th>Genre</th>
+            <th>Short Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(book of booksList; track book){
+          <tr
+          >
+            <td>{{ $index + 1 }}</td>
+            <!-- <td>
+              <div class="img_wrapper">
+                <img [src]="book.coverImage" alt="" />
+              </div>
+            </td> -->
+            <td>{{ book.title }}</td>
+            <td>{{ book.author.name }}</td>
+            <td>{{ book.updatedDate | date : "MMM dd yyyy [hh:mm a]" }}</td>
+            <td>{{ book.offShelf ? "Yes" : "No" }}</td>
+            <td>
+              {{
+                book.borrowedBy.length != 0
+                  ? book.borrowedBy[book.borrowedBy.length - 1].name
+                  : "Not Borrowed yet"
+              }}
+            </td>
+            <td>{{ !book.offShelf ? "On Shelf" : book.borrowedDate }}</td>
+            <td>{{ book.pages.length }} pages</td>
+            <td>{{ book.views }}</td>
+            <td>{{ book.genre }}</td>
+            <td>{{ book.shortDescription }}</td>
+            <td>
+              <span class="material-symbols-rounded select_option delete" (click)="deleteBook(book.id)" >
+                delete
+              </span>
+              <span class="material-symbols-rounded select_option" (click)="getBook(book)" > edit </span>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

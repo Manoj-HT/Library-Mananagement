@@ -1,0 +1,53 @@
+<div class="select-container form-element_container">
+  <div class="select-heading form-element">
+    <input
+      type="text"
+      (click)="toggleDropDown()"
+      readonly
+      [id]="idForInput"
+      [formControl]="control"
+      class="input_element"
+      placeholder="Select"
+    />
+    <label class="label_element" [for]="idForInput">{{ label() }}</label>
+  </div>
+  @if(isOpenDropdown()){
+  <div
+    [className]="
+      isDropDownStyle()
+        ? 'select-dropdown card scroll-down'
+        : 'select-dropdown card scroll-up'
+    "
+    [id]="idForDropdown"
+  >
+    <!-- <div
+        [className]="
+          isDropDownStyle()
+            ? 'dropdown-search fade-in'
+            : 'dropdown-search fade-out'
+        "
+      >
+        <input
+          type="text"
+          [id]="idForSearch"
+          [name]="idForSearch"
+          [placeholder]="'search in ' + label() + 's'"
+          (input)="partialSearch($event)"
+        />
+      </div> -->
+    <div
+      [className]="
+        isDropDownStyle()
+          ? 'dropdow-content fade-in'
+          : 'dropdow-content fade-out'
+      "
+    >
+      @for(data of singleSelectOptions().dataArray; track data){
+      <p (click)="selectedOption(data)">
+        {{ data[singleSelectOptions().keyToDisplay] }}
+      </p>
+      }
+    </div>
+  </div>
+  }
+</div>

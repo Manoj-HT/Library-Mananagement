@@ -1,0 +1,142 @@
+<div class="component_container component_container-padding">
+  <p class="heading">{{ heading }}</p>
+  <div class="content">
+    <div class="user_details">
+      <div class="form_content card">
+        <div class="profile_image">
+          <div class="img_wrapper">
+            <img src="male.svg" #profilePicture alt="" />
+          </div>
+          <div class="edit_profile"></div>
+        </div>
+        <div class="form">
+          <form [formGroup]="form">
+            <div class="row">
+              <div class="row_element">
+                <text-input
+                  label="Enter Name"
+                  controlName="name"
+                  [parentForm]="form"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="row_element">
+                <email-input
+                  label="Enter Email"
+                  controlName="email"
+                  [parentForm]="form"
+                />
+              </div>
+            </div>
+            <div class="row" #passwordField>
+              <div class="row_element">
+                <password-input
+                  label="Enter password"
+                  controlName="password"
+                  [parentForm]="form"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="row_element">
+                <single-select
+                  label="Gender"
+                  controlName="gender"
+                  [parentForm]="form"
+                  [singleSelectOptions]="genderOptionsSignal"
+                  (change)="getGender($event)"
+                />
+              </div>
+            </div>
+            <div class="row" #roleField>
+              <div class="row_element">
+                <single-select
+                  label="Role"
+                  controlName="role"
+                  [parentForm]="form"
+                  [singleSelectOptions]="roleOptionSignal"
+                  (change)="showRoleValue($event)"
+                />
+              </div>
+            </div>
+          </form>
+          <div class="button_group">
+            @if(isView){
+            <button
+              class="button_active"
+              (click)="
+                editButtonText == 'Edit' ? editCurrentProfile() : updateUser()
+              "
+            >
+              {{ editButtonText }}
+            </button>
+            }
+            <button
+              [className]="isView ? 'button_danger' : 'button_active'"
+              (click)="isView ? logOut() : submit()"
+            >
+              {{ isView ? "Log Out" : "Submit" }}
+            </button>
+          </div>
+        </div>
+      </div>
+      @if(isCard()){
+      <div class="book_details card">
+        @if(isView){
+        <p class="title">My Current Books</p>
+        }@else{
+        <p class="title">Book History</p>
+        }
+        <div class="books">
+          @for(ele of books; track ele){
+          <div
+            class="book"
+            (click)="viewBook(ele.id)"
+            (mouseenter)="isRemoveButton.set(true)"
+            (mouseleave)="isRemoveButton.set(false)"
+          >
+            <div class="div1 img_wrapper">
+              <img src="" alt="" />
+            </div>
+            <div class="div2">
+              <p>{{ ele.title }}</p>
+            </div>
+            <div class="div3">
+              <p>
+                {{ ele.author.name }}
+              </p>
+            </div>
+            @if(isRemoveButton()){
+            <div class="remove_wrapper button_group">
+              <button class="button_active" (click)="viewBook(ele.id)">
+                View Book
+              </button>
+              <button
+                class="button_danger"
+                (click)="removeBookFromList(ele.id, $index)"
+              >
+                Remove
+              </button>
+            </div>
+            }
+          </div>
+          } @empty {
+          <div class="add-book">
+            <span>No Books</span>
+          </div>
+          } @if(isView){
+          <div class="add-book" (click)="addBook()">
+            <span class="material-symbols-rounded"> add </span>
+            <span>Add Book</span>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+    <div class="img_wrapper background no-mobile-view">
+      <img [src]="backgroundImage" alt="" />
+    </div>
+  </div>
+</div>

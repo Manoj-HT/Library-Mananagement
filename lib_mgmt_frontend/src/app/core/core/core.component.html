@@ -1,0 +1,8 @@
+<div class="page">
+  @if(isNav()){
+  <nav nav-bar ></nav>
+  }
+  <div class="component" [className]="isNav() ? 'component' : 'nav-disabled'">
+    <router-outlet />
+  </div>
+</div>

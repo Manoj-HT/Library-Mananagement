@@ -1,0 +1,16 @@
+<div class="form-element_container">
+  <div class="form-element">
+    <input
+      type="text"
+      class="input_element"
+      autocomplete="off"
+      [name]="labelTransformation"
+      placeholder=""
+      [id]="labelTransformation"
+      [formControl]="control"
+    />
+    <label [for]="labelTransformation" class="label_element">{{
+      label()
+    }}</label>
+  </div>
+</div>

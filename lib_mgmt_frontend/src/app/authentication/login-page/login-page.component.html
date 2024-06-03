@@ -1,0 +1,21 @@
+<div class="component_container login_page">
+  <div class="img_container">
+    <login-background />
+  </div>
+  <div class="login_form">
+    <div class="welcome_container">
+      <h1>Hey Reader!</h1>
+      <p>Welcome to the library</p>
+    </div>
+    <div>
+      <p>Sign in to Explore</p>
+      <password-login />
+    </div>
+  </div>
+</div>
+@if(isInvalidUser()){
+<div class="alert card">
+  <p>Invalid user. Please check your login details</p>
+  <button (click)="isInvalidUser.set(false)" >OK</button>
+</div>
+}

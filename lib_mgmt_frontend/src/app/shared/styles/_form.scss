@@ -1,0 +1,43 @@
+@mixin form-element-defaults($text-color, $border-color, $text-faded) {
+  position: relative;
+  height: 50px;
+  .input_element {
+    width: 100%;
+    border: none;
+    height: 100%;
+    border-bottom: 2px solid $border-color;
+    font-size: 1rem;
+    padding: 15px;
+    &:focus {
+      outline: none;
+      border-color: var(--theme_color-bold);
+      background-color: var(--theme_color-light);
+    }
+    &::placeholder {
+      color: transparent;
+    }
+  }
+  .label_element {
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    transition-duration: 0.3s;
+    color: $text-faded;
+  }
+  .input_element:focus ~ .label_element,
+  .input_element:not(:placeholder-shown) ~ .label_element {
+    color: $text-color;
+    top: -20px;
+  }
+}
+
+.form-element {
+  @include form-element-defaults(var(--theme_color-bold), transparent, var(--font-color-faded));
+}
+.form-element_error {
+  @include form-element-defaults(var(--danger), var(--danger), var(--danger));
+}
+
+.form-element_container {
+  margin: 10px;
+}

@@ -1,0 +1,85 @@
+<div class="component_container component_container-padding">
+  <p class="heading">{{ heading }}</p>
+  <div class="content">
+    <div class="card meta">
+      <form [formGroup]="metaForm">
+        <text-input
+          label="Title"
+          controlName="title"
+          [parentForm]="metaForm"
+          (input)="getHeading($event, 'title')"
+        />
+        <single-select
+          label="Author"
+          controlName="author"
+          [parentForm]="metaForm"
+          [singleSelectOptions]="adminOptionSignal"
+          (change)="getHeading($event, 'author')"
+        />
+        <text-input label="Genre" controlName="genre" [parentForm]="metaForm" />
+        <text-area
+          label="Description"
+          controlName="shortDescription"
+          [parentForm]="metaForm"
+        />
+      </form>
+      <div class="button_group">
+        <button class="button_active" (click)="buttonAction()">
+          {{ buttonText }}
+        </button>
+      </div>
+    </div>
+    @if(isPages()){
+    <div class="card pages">
+      <p>Pages</p>
+      <div class="pages">
+        @if(book){ @for(ele of book.pages; track ele){
+        <div class="page">{{ $index }}</div>
+        } }
+      </div>
+      <div class="button_group">
+        <button class="button_active" (click)="viewBook()">
+          {{
+            state == "create"
+              ? "Add Content"
+              : state == "edit"
+              ? "Edit Content"
+              : "Start Reading"
+          }}
+        </button>
+      </div>
+    </div>
+    } @if(isEditContent()){
+    <div class="card update_book_content">
+      <form action="" [formGroup]="textContentForm" >
+        <div class="row">
+          <text-area
+            label="Content"
+            controlName="text"
+            [parentForm]="textContentForm"
+            [rows]="20"
+          />
+        </div>
+      </form>
+      <div class="button_group">
+        <button class="button_active" (click)="updateBookContent()" >Update Content</button>
+      </div>
+    </div>
+    }
+    <div class="book_design">
+      <div class="book">
+        <div class="div1"></div>
+        <div class="div2">
+          <div class="pages"></div>
+        </div>
+        <div class="div3">
+          <p class="h">{{ title }}</p>
+          <p>{{ author }}</p>
+          <label for="cover">
+            <input type="file" name="cover" id="cover" />
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

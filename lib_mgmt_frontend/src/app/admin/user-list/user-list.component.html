@@ -1,0 +1,66 @@
+<div class="component_container component_container-padding">
+  <p class="heading">List of all users</p>
+  <div class="card">
+    <div class="button_group">
+      <form action="" [formGroup]="form">
+        <text-input
+          label="Search users"
+          controlName="user"
+          [parentForm]="form"
+          (input)="search($event)"
+        />
+      </form>
+      <button (click)="createUser()">
+        <span class="material-symbols-rounded"> add </span> Create new user
+      </button>
+    </div>
+    <div class="table_wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Sl No.</th>
+            <th>Profile Picture</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Joined Date</th>
+            <th>Last Login</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(user of usersList; track user){
+          <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>
+              <div class="img_wrapper">
+                <img [src]="user.profilePicture" alt="" />
+              </div>
+            </td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.createdDate | date : 'MMM dd yyyy [hh:mm a]' }}</td>
+            <td>{{ user.lastLogin | date : 'MMM dd yyyy [hh:mm a]' }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <span
+                class="material-symbols-rounded select_option delete"
+                (click)="delete(user.id)"
+              >
+                delete
+              </span>
+              &nbsp;
+              <span
+                class="material-symbols-rounded select_option"
+                (click)="getUser(user)"
+              >
+                edit
+              </span>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

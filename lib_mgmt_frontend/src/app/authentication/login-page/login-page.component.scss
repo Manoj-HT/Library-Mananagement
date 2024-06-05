@@ -1,6 +1,7 @@
 .login_page {
   display: flex;
   justify-content: flex-end;
+  height: 100%;
   align-items: center;
   background: var(--background-white);
 }
@@ -35,7 +36,7 @@
   }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 925px) {
   .img_container {
     login-background {
       scale: 0.9;
@@ -45,7 +46,7 @@
     width: 100%;
   }
 }
-@media screen and (max-width: 426px) {
+@media screen and (max-width: 645px) {
   .img_container {
     display: none;
     login-background {
@@ -70,5 +71,10 @@
   flex-direction: column;
   button{
     width: 30%;
+  }
+}
+.password_component-container{
+  p{
+    margin-bottom: 20px;
   }
 }

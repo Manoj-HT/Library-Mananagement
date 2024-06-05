@@ -1,3 +1,7 @@
+# 3.0.0
+
+1. login page responsiveness added
+
 # 2.1.0
 
 1. Initial Release complete

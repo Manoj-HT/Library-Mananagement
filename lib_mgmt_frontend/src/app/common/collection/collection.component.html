@@ -1,7 +1,7 @@
 <div class="component_container component_container-padding">
   @for(collection of collectionList; track collection){
   <div class="section">
-    <p class="sub_heading">{{ collection.name }}</p>
+    <p class="heading">{{ collection.name }}</p>
     <div class="book-container">
       @for(book of collection.books; track book){
       <div class="book" (click)="role == 'reader' ? readBook(book.id) : null">

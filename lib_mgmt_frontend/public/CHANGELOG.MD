@@ -1,3 +1,7 @@
+# 3.1.0
+
+1. admin dashboard responsiveness added
+
 # 3.0.0
 
 1. login page responsiveness added

@@ -1,3 +1,7 @@
+# 3.2.0
+
+1. user list and book list responsiveness added
+
 # 3.1.0
 
 1. admin dashboard responsiveness added

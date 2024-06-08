@@ -31,3 +31,8 @@ button {
   cursor: pointer;
   color: var(--font-color-inverse);
 }
+.btn_txt{
+  @media screen and (max-width : 580px) {
+    display: none;
+  }
+}

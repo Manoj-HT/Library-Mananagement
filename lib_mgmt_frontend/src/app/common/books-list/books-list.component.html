@@ -1,6 +1,6 @@
 <div class="component_container component_container-padding">
   <p class="heading">List of all books</p>
-  <div class="card">
+  <div class="card table_card">
     <div class="button_group">
       <form action="" [formGroup]="form">
         <text-input
@@ -11,7 +11,7 @@
         />
       </form>
       <button [routerLink]="'/admin/create-book'">
-        <span class="material-symbols-rounded"> add </span>Create new book
+        <span class="material-symbols-rounded"> add </span> <span class="btn_txt" >Create new book</span>
       </button>
     </div>
     <div class="table_wrapper">

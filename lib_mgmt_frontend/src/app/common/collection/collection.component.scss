@@ -28,17 +28,15 @@ p.heading {
 
 .book {
   flex: 0 0 auto;
-  margin-right: 10px;
+  margin-right: 20px;
   text-align: center;
   .img_wrapper {
-    height: 200px;
+    height: 150px;
     aspect-ratio: 1/1;
     overflow: hidden;
     border-radius: 12px;
     border: 3px solid var(--theme_color-bold);
     img {
-      width: 100%;
-      height: 100%;
       object-fit: contain;
     }
   }
@@ -49,6 +47,24 @@ p.heading {
   align-items: center;
   justify-content: center;
   border-left: 1px solid var(--theme_color-light);
+  padding: 10px;
+  button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:nth-child(1){
+      margin-right: 10px;
+    }
+  }
+  @media screen and (max-width : 768px) {
+    flex-direction: column;
+    gap: 20px;
+      button{
+        &:nth-child(1){
+          margin: 0;
+        }
+      }
+  }
 }
 .view_all {
   grid-area: 2 / 5 / 3 / 6;

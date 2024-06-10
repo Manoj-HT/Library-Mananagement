@@ -1,8 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
 const cors = require("cors");
+const { DataStore } = require("./dataStore");
 const app = express();
 const port = process.env.PORT;
 const jwtSecretKey = process.env.JWT_SECRET_KEY;
@@ -16,9 +16,9 @@ app.use(
   })
 );
 
-let people = JSON.parse(fs.readFileSync("people.json", "utf-8"));
-let books = JSON.parse(fs.readFileSync("books.json", "utf-8"));
-let collections = JSON.parse(fs.readFileSync("collections.json", "utf-8"));
+const peopleStore = new DataStore("people.json");
+const bookStore = new DataStore("books.json");
+const collectionStore = new DataStore("collections.json");
 
 const authMiddleware = (req, res, next) => {
   const authorizationHeader = req.headers.authorization;
@@ -36,27 +36,66 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-function writeToPeople() {
-  fs.writeFileSync("people.json", JSON.stringify(people));
+const apis = {
+  login: "/login",
+  updateLoginStatus: "/update-login-status",
+  createUser: "/create-user",
+  usersList: "/users-list",
+  adminList: "/admin-list",
+  user: "/user",
+  usersByIdList : "/users-by-id-list",
+  updateUser: "/update-user",
+  createBook: "/create-book",
+  booksList: "/books-list",
+  book: "/book",
+  booksByIdList : "/books-by-id-list",
+  partialSearchByName: "/partial-search-by-name",
+  updateBook: "/update-book",
+  bookContent: "/book-content",
+  updateBookContent: "/update-book-content",
+  bookByPageNumber: "/book-by-page-number",
+  singlePageByPageNumber : "/single-page-by-page-number",
+  createCollection: "/create-collection",
+  collectionsList: "/collections-list",
+  collection: "/collection",
+  updateCollection: "/update-collection",
+  mapBookToUser: "/map-book-to-user",
+};
+
+function prepareBookToSend(book) {
+  let borrowedBy = peopleStore.getByIdList(book.borrowedBy);
+  for (let person of borrowedBy) {
+    delete person.books;
+  }
+  return {
+    ...book,
+    borrowedBy,
+  };
 }
 
-function writeToBook() {
-  fs.writeFileSync("books.json", JSON.stringify(books));
+function preparePersonToSend(person) {
+  let books = bookStore.getByIdList(...person.books);
+  for (let book of books) {
+    delete book.pages;
+    delete book.borrowedBy;
+    delete book.bookmarks
+  }
+  return {
+    ...person,
+    books,
+  };
 }
 
-function writeToCollection() {
-  fs.writeFileSync("collections.json", JSON.stringify(collections));
-}
-
-app.post("/login", (req, res) => {
+app.post(apis.login, (req, res) => {
   const cred = {
     email: req.body.email,
     password: req.body.password,
   };
-  let person = people.find(
+  let usersArray = peopleStore.getAllInArray();
+  let person = usersArray.find(
     (person) => person.email === cred.email && person.password === cred.password
   );
-  if (people == undefined) {
+  if (person == undefined) {
     res.send({ message: "user not present" });
   } else {
     let data = {
@@ -65,21 +104,21 @@ app.post("/login", (req, res) => {
     };
     const token = jwt.sign(data, jwtSecretKey);
     res.send({
-      ...person,
+      ...preparePersonToSend(person),
       token,
     });
   }
 });
 
-app.put("/update-login-status", authMiddleware, (req, res) => {
+app.put(apis.updateLoginStatus, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let person = people.find((person) => String(person.id) === String(id));
+  let person = peopleStore.getById(id);
   if (person != undefined) {
     person = {
       ...person,
       lastLogin: new Date(),
     };
-    writeToPeople();
+    peopleStore.save();
     res.send({ message: "last login registered" });
   } else {
     res.statusCode(401);
@@ -87,162 +126,197 @@ app.put("/update-login-status", authMiddleware, (req, res) => {
   }
 });
 
-app.post("/create-user", authMiddleware, (req, res) => {
+app.post(apis.createUser, authMiddleware, (req, res) => {
   let person = req.body;
+  let id = peopleStore.getSize();
   person = {
     ...person,
-    id: people.length,
+    id,
     createdDate: new Date(),
     updatedDate: new Date(),
     lastLogin: new Date(),
+    books: []
   };
-  people.push(person);
-  writeToPeople();
+  peopleStore.create(id, person);
+  peopleStore.save();
   res.send(person);
 });
 
-app.get("/users-list", authMiddleware, (req, res) => {
-  res.send(people);
+app.get(apis.usersList, authMiddleware, (req, res) => {
+  let peopleArray = peopleStore.getAllInArray()
+  for(let person of peopleArray){
+    person = {
+      ...preparePersonToSend(person)
+    }
+  }
+  res.send(peopleArray);
 });
 
-app.get("/admin-list", authMiddleware, (req, res) => {
-  let adminList = people.filter((person) => person.role === "admin");
+app.get(apis.adminList, authMiddleware, (req, res) => {
+  let usersArray = peopleStore.getAllInArray();
+  let adminList = usersArray.filter((person) => person.role === "admin");
+  for(let admin of adminList){
+    admin = {...preparePersonToSend(admin)}
+  }
   res.send(adminList);
 });
 
-app.get("/user", authMiddleware, (req, res) => {
-  let person = people.find((person) => {
-    return String(person.id) === String(req.query.id);
-  });
-  if (people == undefined) {
+app.get(apis.user, authMiddleware, (req, res) => {
+  let id = res.query.id;
+  let person = peopleStore.getById(id);
+  if (person == undefined) {
     res.send({ message: `${req.query.id} not present` });
   } else {
-    res.send(person);
+    res.send(preparePersonToSend(person));
   }
 });
 
-app.put("/update-user", authMiddleware, (req, res) => {
+app.put(apis.updateUser, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let personId = people.findIndex((person) => String(person.id) === id);
+  let person = peopleStore.getById(id);
   let body = req.body;
-  if (personId == -1) {
+  if (!person) {
     res.send("user not present");
   } else {
-    people[personId] = {
-      ...people[personId],
+    peopleStore.update(id, {
+      ...person,
       ...body,
       updatedDate: new Date(),
-    };
-    writeToPeople();
-    res.send(people[personId]);
+    });
+    peopleStore.save();
+    res.send(preparePersonToSend(person));
   }
 });
 
-app.delete("/user", authMiddleware, (req, res) => {
+app.delete(apis.user, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let personId = people.findIndex((person) => String(person.id) === id);
-  people.splice(personId, 1);
-  writeToPeople();
+  peopleStore.delete(id);
+  peopleStore.save();
   res.send({ message: "deleted" });
 });
 
-app.post("/create-book", authMiddleware, (req, res) => {
+app.post(apis.createBook, authMiddleware, (req, res) => {
   let book = req.body;
-  book = {
+  let id = bookStore.getSize();
+  bookStore.create(id, {
     ...book,
-    id: books.length,
+    id,
     createdDate: new Date(),
     updatedDate: new Date(),
     pages: [],
     borrowedBy: [],
     offShelf: false,
-  };
-  books.push(book);
-  writeToBook();
+    borrowedDate : "",
+    studiedState : "",
+    bookmarks : [],
+    views : 0
+  });
+  bookStore.save();
   res.send(book);
 });
 
-app.get("/books-list", authMiddleware, (req, res) => {
-  res.send(books);
+app.get(apis.booksList, authMiddleware, (req, res) => {
+  let bookArray = bookStore.getAllInArray();
+  for(let book of bookArray){
+    book = {
+      ...prepareBookToSend(book)
+    }
+  }
+  res.send(bookArray);
 });
 
-app.get("/book", authMiddleware, (req, res) => {
+app.get(apis.book, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let bookId = books.findIndex((book) => String(book.id) === String(id));
-  res.send(books[bookId]);
+  let book = bookStore.getById(id);
+  res.send(book);
 });
 
-app.get("/partial-search-by-name", authMiddleware, (req, res) => {
-  let book = books.filter();
-});
+app.post(apis.booksByIdList, authMiddleware, (req, res) => {
+  let idList = req.body.idList
+  let bookArray = bookStore.getByIdList(...idList)
+  for(let book of bookArray){
+    book = {
+      ...prepareBookToSend(book)
+    }
+  }
+  res.send(bookArray)
+})
 
-app.put("/update-book", authMiddleware, (req, res) => {
+app.post(apis.usersByIdList, authMiddleware, (req, res) => {
+  let idList = req.body.idList
+  let peopleArray = peopleStore.getByIdList(...idList)
+  for(let person in peopleArray){
+    person = {
+      ...preparePersonToSend(person)
+    }
+  }
+  res.send(peopleArray)
+})
+
+app.put(apis.updateBook, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let bookId = books.findIndex((book) => String(book.id) === String(id));
+  let book = bookStore.getById(id);
   let body = req.body;
-  if (bookId != -1) {
-    books[bookId] = {
-      ...books[bookId],
+  if (book) {
+    bookStore.update(id, {
+      ...book,
       ...body,
-    };
+    });
   } else {
     res.send("No book present");
   }
-  writeToBook();
-  res.send(books[bookId]);
+  bookStore.save();
+  res.send(prepareBookToSend(book));
 });
 
-app.delete("/book", authMiddleware, (req, res) => {
+app.delete(apis.book, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let bookId = books.findIndex((book) => String(book.id) === String(id));
-  books.splice(bookId, 1);
-  writeToBook();
+  bookStore.delete(id);
   res.send({ message: "Deleted Successfully" });
+  bookStore.save();
 });
 
-app.get("/book-content", authMiddleware, (req, res) => {
+app.get(apis.bookContent, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let book = books.find((book) => String(book.id) === String(id));
+  let book = bookStore.getById(id);
   let text = book.pages.join(" ");
   res.send({ text });
 });
 
-app.put("/update-book-content", authMiddleware, (req, res) => {
+app.put(apis.updateBookContent, authMiddleware, (req, res) => {
   let request = {
     id: req.body.id,
     text: req.body.text,
   };
-  let bookId = books.findIndex(
-    (book) => String(book.id) === String(request.id)
-  );
-  let pages = splitContentIntoChunks(request.text);
-  books[bookId] = {
-    ...books[bookId],
-    pages,
-  };
-  writeToBook();
-  res.send({ message: "updated successfull" });
+  let book = bookStore.getById(request.id);
+  bookStore.update(request.id, {
+    ...book,
+    pages: request.text,
+  });
+  res.send({ message: "updated successfully" });
+  bookStore.save();
 });
 
-function splitContentIntoChunks(text) {
+function splitContentIntoChunks(text, size) {
   let textArr = text.split(" ");
   let finalArray = [];
   do {
-    let splicedArray = textArr.splice(0, 149);
+    let splicedArray = textArr.splice(0, size ? size : 149);
     let text = splicedArray.join(" ");
     finalArray.push(text);
   } while (textArr.length != 0);
   return finalArray;
 }
 
-app.get("/book-by-page-number", authMiddleware, (req, res) => {
+app.get(apis.bookByPageNumber, authMiddleware, (req, res) => {
   let query = {
     bookId: req.query.bookId,
     firstPage: req.query.firstPage,
     secondPage: req.query.secondPage,
+    size: req.query.size,
   };
-  let book = books.find((book) => String(book.id) === String(query.bookId));
-  let pages = book.pages;
+  let book = bookStore.getById(query.bookId);
+  let pages = splitContentIntoChunks(book.pages, query.size);
   let response = {
     page1: pages[query.firstPage],
     page2: pages[query.secondPage],
@@ -250,98 +324,107 @@ app.get("/book-by-page-number", authMiddleware, (req, res) => {
   res.send(response);
 });
 
-app.post("/create-collection", authMiddleware, (req, res) => {
-  let collection = {
-    ...req.body,
-    id: collections.length,
+app.get(apis.singlePageByPageNumber, authMiddleware, (req, res) => {
+  let query = {
+    bookId: req.query.bookId,
+    pageNumber: req.query.firstPage,
+    size: req.query.size,
   };
-  collections.push(collection);
-  writeToCollection();
+  let book = bookStore.getById(query.bookId);
+  let pages = splitContentIntoChunks(book.pages, query.size);
+  let response = {
+    pageContent: pages[query.pageNumber],
+  };
+  res.send(response);
+});
+
+app.post(apis.createCollection, authMiddleware, (req, res) => {
+  let collection = req.body;
+  let id = collectionStore.getSize();
+  collectionStore.create(id, { id, ...collection });
   res.send({ message: "created succesfully" });
+  collectionStore.save();
 });
 
-app.get("/collections-list", authMiddleware, (req, res) => {
-  res.send(collections);
+app.get(apis.collectionsList, authMiddleware, (req, res) => {
+  let collectionArray = collectionStore.getAllInArray();
+  for(let collection of collectionArray){
+    let books = bookStore.getByIdList(collection.books)
+    for(let book of books){
+      book = {
+        ...prepareBookToSend(book)
+      }
+    }
+    collection = {
+      ...collection,
+      books
+    }
+  }
+  res.send(collectionArray);
 });
 
-app.get("/collection", authMiddleware, (req, res) => {
+app.get(apis.collection, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let collection = collections.find(
-    (collection) => String(collection.id) === String(id)
-  );
+  let collection = collectionStore.getById(id);
+  let books = bookStore.getByIdList(collection.books)
+    for(let book of books){
+      book = {
+        ...prepareBookToSend(book)
+      }
+    }
+    collection = {
+      ...collection,
+      books
+    }
   res.send(collection);
 });
 
-app.put("/update-collection", authMiddleware, (req, res) => {
+app.put(apis.updateCollection, authMiddleware, (req, res) => {
   let id = req.query.id;
   let collectionData = req.body;
-  let collectionId = collections.findIndex(
-    (collection) => String(collection.id) === String(id)
-  );
-  collections[collectionId] = {
-    ...collections[collectionId],
-    ...collectionData,
-  };
-  writeToCollection();
+  let collection = collectionStore.getById(id);
+  collectionStore.update(id, { ...collection, ...collectionData });
+  collectionStore.save();
   res.send({ message: "collection updated successfully" });
 });
 
-app.delete("/collection", authMiddleware, (req, res) => {
+app.delete(apis.collection, authMiddleware, (req, res) => {
   let id = req.query.id;
-  let collectionId = collections.findIndex(
-    (collection) => String(collection.id) === String(id)
-  );
-  collections.splice(collectionId, 1);
-  writeToCollection();
+  collectionStore.delete(id);
+  collectionStore.save();
   res.send({ message: "deleted succesfully" });
 });
 
-app.get("/partial-search-name", authMiddleware, (req, res) => {
+app.get(apis.partialSearchByName, authMiddleware, (req, res) => {
   let bookTitle = req.query.search;
-  let bookArr = books.filter((book) => book.title.includes(bookTitle));
+  let bookArr = bookStore
+    .getAllInArray()
+    .filter((book) => book.title.includes(bookTitle));
   res.send(bookArr);
 });
 
-app.get("/map-book-to-user", authMiddleware, (req, res) => {
-  const userId = req.query.userId;
+app.get(apis.mapBookToUser, authMiddleware, (req, res) => {
+  const personId = req.query.userId;
   const bookId = req.query.bookId;
-  const bookIndex = books.findIndex(
-    (book) => String(book.id) === String(bookId)
-  );
-  const userIndex = people.findIndex(
-    (person) => String(person.id) === String(userId)
-  );
-  let book = JSON.parse(JSON.stringify(books[bookIndex]));
-  let user = JSON.parse(JSON.stringify(people[userIndex]));
-  const bookBorrowedIndex = book.borrowedBy.findIndex(
-    (person) => String(person.id) === userId
-  );
-  if (bookBorrowedIndex == -1) {
-    book.studiedState = 0;
-    book.borrowedBy.push(JSON.parse(JSON.stringify(user)));
-  } else {
-    book.studiedState = 0;
-    book.borrowedBy.splice(bookBorrowedIndex, 1);
-    book.borrowedBy.push(JSON.parse(JSON.stringify(user)));
-  }
-  const personBorrowedIndex = user.books.findIndex(
-    (book) => String(book.id) === String(bookId)
-  );
-  console.log("p", personBorrowedIndex);
-  if (personBorrowedIndex == -1) {
-    user.books.push(JSON.parse(JSON.stringify(book)));
-  } else {
-    user.books.splice(personBorrowedIndex, 1);
-    user.books.push(JSON.parse(JSON.stringify(book)));
-  }
-  book.offShelf = true;
-  console.log(book);
-  console.log(user);
-  books[bookIndex] = book;
-  people[userIndex] = user;
-  writeToBook();
-  writeToPeople();
-  res.send(book);
+  let book = bookStore.getById(bookId);
+  let person = bookStore.getById(personId);
+  book = {
+    ...book,
+    borrowedBy: [...book.borrowedBy, personId],
+    offShelf: true,
+    borrowedDate: new Date(),
+    studiedState: 0,
+    views: book.views + 1,
+  };
+  person = {
+    ...person,
+    books: [...person.books, bookId],
+  };
+  bookStore.update(bookId, book);
+  peopleStore.update(personId, person);
+  res.send(prepareBookToSend(book));
+  bookStore.save();
+  peopleStore.save();
 });
 
 app.listen(port, () => {

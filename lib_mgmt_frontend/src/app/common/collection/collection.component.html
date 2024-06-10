@@ -15,20 +15,30 @@
     </div>
     <div class="button_wrapper">
       @if(role == 'admin'){
-        <button style="margin-right: 10px;" (click)="getCollectionForAdmin(collection.id)" >Edit</button>
-        <button class="button_danger" (click)="deleteCollection(collection.id)" >Delete</button>
+      <button
+        (click)="getCollectionForAdmin(collection.id)"
+      >
+        <span class="material-symbols-rounded select_option">edit</span>
+        <span class="btn_txt">Edit</span>
+      </button>
+      <button class="button_danger" (click)="deleteCollection(collection.id)">
+        <span class="material-symbols-rounded select_option delete">
+          delete </span
+        ><span class="btn_txt">Delete</span>
+      </button>
       }@else {
-        <button class="view_all" (click)="getCollection(collection.id)" >View All</button>
+      <button class="view_all" (click)="getCollection(collection.id)">
+        View All
+      </button>
       }
     </div>
   </div>
-  }
-  @if(role == 'admin'){
-    <div class="button_wrapper">
-      <button class="button_active" (click)="collectionDetails()">
-        Add Collection
-      </button>
-    </div>
+  } @if(role == 'admin'){
+  <div class="button_wrapper">
+    <button class="button_active" (click)="collectionDetails()">
+      Add Collection
+    </button>
+  </div>
   }
 </div>
 @if(isCollectionEditCard()){
@@ -57,10 +67,9 @@
             <th>Last updated</th>
             <th>Genre</th>
             @if(role == 'admin'){
-              <th>@if(isSearch()){ Add }@else { Remove }</th>
-            }
-            @else {
-              <th>Read</th>
+            <th>@if(isSearch()){ Add }@else { Remove }</th>
+            } @else {
+            <th>Read</th>
             }
           </tr>
         </thead>
@@ -74,15 +83,25 @@
             <td>{{ book.genre }}</td>
             @if(role == 'admin'){
 
-              <td>
-                @if(isSearch()){
-                <span class="material-symbols-rounded" (click)="addToBookCollection(book.id)" > add </span>
-                }@else {
-                <span class="material-symbols-rounded" (click)="removeBookInCollection(book.id)" > delete </span>
-                }
-              </td>
+            <td>
+              @if(isSearch()){
+              <span
+                class="material-symbols-rounded"
+                (click)="addToBookCollection(book.id)"
+              >
+                add
+              </span>
+              }@else {
+              <span
+                class="material-symbols-rounded"
+                (click)="removeBookInCollection(book.id)"
+              >
+                delete
+              </span>
+              }
+            </td>
             }@else {
-              <td><button (click)="readBook(book.id)" >Read</button></td>
+            <td><button (click)="readBook(book.id)">Read</button></td>
             }
           </tr>
           }
@@ -90,7 +109,12 @@
       </table>
     </div>
     <div class="button_wrapper">
-      <button class="button_active"  (click)="isEdit() ? editCollection() : addToCollection()" >{{isEdit()  ? 'Update Collection' : 'Create Collection'}}</button>
+      <button
+        class="button_active"
+        (click)="isEdit() ? editCollection() : addToCollection()"
+      >
+        {{ isEdit() ? "Update Collection" : "Create Collection" }}
+      </button>
     </div>
   </form>
 </div>

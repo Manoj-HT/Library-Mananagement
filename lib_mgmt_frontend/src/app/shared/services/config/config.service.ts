@@ -23,7 +23,7 @@ export class ConfigService {
     createCollection: '/create-collection',
     collectionDetails: '/collection',
     updateCollection: "/update-collection",
-    partialSearchByName: "/partial-search-name",
+    partialSearchByName: "/partial-search-by-name",
     mapBookToUser: "/map-book-to-user",
     pageByPageNumber: "/book-by-page-number"
   };
